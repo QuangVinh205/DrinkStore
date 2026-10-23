@@ -5,6 +5,7 @@ namespace DrinkStore.Models
 {
     public class MenuItem
     {
+        [Key]
         public int ItemId { get; set; }
 
         [Required, MaxLength(100)]

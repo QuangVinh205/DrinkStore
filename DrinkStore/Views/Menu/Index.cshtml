@@ -1,0 +1,40 @@
+﻿@model IEnumerable<DrinkStore.Models.MenuItem>
+
+@{
+    ViewData["Title"] = "Menu đồ uống";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">MENU ĐỒ UỐNG</h2>
+
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="@item.ImageUrl"
+                         class="card-img-top"
+                         alt="@item.Name"
+                         style="height:220px;object-fit:cover;" />
+
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Name</h5>
+
+                        <p class="card-text">
+                            @item.Description
+                        </p>
+
+                        <h5 class="text-danger">
+                            @item.BasePrice.ToString("N0") đ
+                        </h5>
+
+                        <button class="btn btn-primary"
+                                disabled>
+                            Thêm vào giỏ hàng
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
