@@ -1,0 +1,76 @@
+@model IEnumerable<DrinkStore.Models.MenuItem>
+
+@{
+    ViewData["Title"] = "Quản lý đồ uống";
+}
+
+<h2>Quản lý đồ uống</h2>
+
+<a asp-area="Admin"
+   asp-controller="Menu"
+   asp-action="Create"
+   class="btn btn-primary mb-3">
+    + Thêm đồ uống
+</a>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Tên đồ uống</th>
+            <th>Giá bán</th>
+            <th>Trạng thái</th>
+            <th>Chức năng</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.BasePrice.ToString("N0") đ</td>
+                <td>
+                    @if (item.Active)
+                    {
+                        <span class="badge bg-success">
+                            Đang bán
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">
+                            Ngừng bán
+                        </span>
+                    }
+                </td>
+                <td>
+                    <a asp-area="Admin"
+                       asp-controller="Menu"
+                       asp-action="Edit"
+                       asp-route-id="@item.ItemId"
+                       class="btn btn-warning btn-sm">
+                        Sửa
+                    </a>
+
+                    <a asp-area="Admin"
+                       asp-controller="Menu"
+                       asp-action="Details"
+                       asp-route-id="@item.ItemId"
+                       class="btn btn-info btn-sm">
+                        Chi tiết
+                    </a>
+
+                    @if (item.Active)
+                    {
+                        <a asp-area="Admin"
+                           asp-controller="Menu"
+                           asp-action="Delete"
+                           asp-route-id="@item.ItemId"
+                           class="btn btn-danger btn-sm">
+                            Ngừng bán
+                        </a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

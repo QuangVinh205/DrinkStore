@@ -1,0 +1,51 @@
+
+@model DrinkStore.Models.MenuItem
+
+@{
+    ViewData["Title"] = "Chi tiết đồ uống";
+}
+
+<h2>Chi tiết đồ uống</h2>
+
+<dl class="row">
+    <dt class="col-sm-3">Tên đồ uống</dt>
+    <dd class="col-sm-9">@Model.Name</dd>
+
+    <dt class="col-sm-3">Mô tả</dt>
+    <dd class="col-sm-9">@Model.Description</dd>
+
+    <dt class="col-sm-3">Giá bán</dt>
+    <dd class="col-sm-9">
+        @Model.BasePrice.ToString("N0") đ
+    </dd>
+
+    <dt class="col-sm-3">Trạng thái</dt>
+    <dd class="col-sm-9">
+        @(Model.Active ? "Đang bán" : "Ngừng bán")
+    </dd>
+
+    <dt class="col-sm-3">Hình ảnh</dt>
+    <dd class="col-sm-9">
+        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl"
+                 alt="@Model.Name"
+                 width="150" />
+        }
+    </dd>
+</dl>
+
+<a asp-area="Admin"
+   asp-controller="Menu"
+   asp-action="Edit"
+   asp-route-id="@Model.ItemId"
+   class="btn btn-warning">
+    Chỉnh sửa
+</a>
+
+<a asp-area="Admin"
+   asp-controller="Menu"
+   asp-action="Index"
+   class="btn btn-secondary">
+    Quay lại
+</a>

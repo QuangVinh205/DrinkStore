@@ -1,0 +1,92 @@
+
+@model DrinkStore.Models.MenuItem
+
+@{
+    ViewData["Title"] = "Ngừng bán đồ uống";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">Xác nhận ngừng bán</h4>
+        </div>
+
+        <div class="card-body">
+            <div class="alert alert-warning">
+                Bạn có chắc chắn muốn ngừng bán
+                đồ uống này không?
+
+                <p class="mb-0">
+                    Dữ liệu đồ uống sẽ được giữ lại
+                    trong hệ thống.
+                </p>
+            </div>
+
+            <dl class="row">
+                <dt class="col-sm-3">Tên đồ uống</dt>
+                <dd class="col-sm-9">@Model.Name</dd>
+
+                <dt class="col-sm-3">Mô tả</dt>
+                <dd class="col-sm-9">
+                    @Model.Description
+                </dd>
+
+                <dt class="col-sm-3">Giá bán</dt>
+                <dd class="col-sm-9">
+                    @Model.BasePrice.ToString("N0") đ
+                </dd>
+
+                <dt class="col-sm-3">Trạng thái</dt>
+                <dd class="col-sm-9">
+                    @if (Model.Active)
+                    {
+                        <span class="badge bg-success">
+                            Đang bán
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">
+                            Ngừng bán
+                        </span>
+                    }
+                </dd>
+
+                <dt class="col-sm-3">Hình ảnh</dt>
+                <dd class="col-sm-9">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl"
+                             alt="@Model.Name"
+                             class="img-thumbnail"
+                             style="max-width:150px;" />
+                    }
+                    else
+                    {
+                        <span>Chưa có hình ảnh</span>
+                    }
+                </dd>
+            </dl>
+
+            <hr />
+
+            <form asp-area="Admin"
+                  asp-controller="Menu"
+                  asp-action="Deactivate"
+                  asp-route-id="@Model.ItemId"
+                  method="post">
+
+                <button type="submit" class="btn btn-danger">
+                    Xác nhận ngừng bán
+                </button>
+
+                <a asp-area="Admin"
+                   asp-controller="Menu"
+                   asp-action="Index"
+                   class="btn btn-secondary">
+                    Hủy
+                </a>
+            </form>
+        </div>
+    </div>
+</div>

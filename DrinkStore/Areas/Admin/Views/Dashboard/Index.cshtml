@@ -1,0 +1,78 @@
+@model DrinkStore.Areas.Admin.Models.DashboardViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Dashboard Admin";
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+}
+<div class="admin-dashboard">
+    <div class="dashboard-heading">
+        <div><p class="eyebrow">DRINKSTORE / QUẢN TRỊ</p><h1>Tổng quan cửa hàng</h1><p class="text-muted mb-0">Ngày @Model.Today.ToString("dd/MM/yyyy") · Giờ Việt Nam</p></div>
+        <a asp-area="Admin" asp-controller="Menu" asp-action="Create" class="btn btn-primary">+ Thêm đồ uống</a>
+    </div>
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3"><section class="stat revenue"><p>Doanh thu hôm nay</p><h2>@Model.Revenue.ToString("N0", vi) <small>₫</small></h2><span>Tổng tiền đơn hoàn thành trong ngày</span></section></div>
+        <div class="col-sm-6 col-xl-3"><section class="stat"><p>Đơn hàng hôm nay</p><h2>@Model.OrdersToday</h2><span>Tất cả trạng thái trong ngày</span></section></div>
+        <div class="col-sm-6 col-xl-3"><section class="stat"><p>Đơn cần xử lý</p><h2>@Model.PendingOrders</h2><span>Chờ xác nhận, đã xác nhận, đang pha chế</span></section></div>
+        <div class="col-sm-6 col-xl-3"><section class="stat"><p>Đồ uống đang bán</p><h2>@Model.ActiveItems <small>/ @Model.TotalItems</small></h2><a asp-area="Admin" asp-controller="Menu" asp-action="Index">Quản lý thực đơn →</a></section></div>
+    </div>
+    <div class="row g-4">
+        <div class="col-xl-8">
+            <section class="panel h-100">
+                <div class="panel-heading"><h2>Đơn hàng gần đây</h2><span class="text-muted small">8 đơn mới nhất</span></div>
+                @if (Model.RecentOrders.Count == 0)
+                {
+                    <div class="empty"><h3>Chưa có đơn hàng</h3><p>Đơn hàng mới sẽ xuất hiện tại đây khi khách đặt món.</p></div>
+                }
+                else
+                {
+                    <div class="table-responsive"><table class="table align-middle mb-0">
+                        <thead><tr><th scope="col">Mã đơn</th><th scope="col">Khách hàng</th><th scope="col">Thời gian</th><th scope="col">Tổng tiền</th><th scope="col">Trạng thái</th></tr></thead>
+                        <tbody>
+                        @foreach (var order in Model.RecentOrders)
+                        {
+                            var (label, color) = order.Status switch
+                            {
+                                OrderStatus.Pending => ("Chờ xác nhận", "warning text-dark"),
+                                OrderStatus.Confirmed => ("Đã xác nhận", "info text-dark"),
+                                OrderStatus.Preparing => ("Đang pha chế", "primary"),
+                                OrderStatus.Completed => ("Hoàn thành", "success"),
+                                OrderStatus.Cancelled => ("Đã hủy", "secondary"),
+                                _ => ("Không xác định", "secondary")
+                            };
+                            <tr><td class="fw-semibold">#@order.OrderId</td><td>@(order.Customer?.Name ?? "Không có thông tin")</td><td class="text-nowrap">@order.OrderDate.AddHours(7).ToString("dd/MM HH:mm")</td><td class="text-nowrap">@order.Total.ToString("N0", vi) ₫</td><td><span class="badge bg-@color">@label</span></td></tr>
+                        }
+                        </tbody>
+                    </table></div>
+                }
+            </section>
+        </div>
+        <div class="col-xl-4">
+            <section class="panel mb-4">
+                <div class="panel-heading"><h2>Thao tác nhanh</h2></div>
+                <div class="shortcuts">
+                    <a asp-area="Admin" asp-controller="Menu" asp-action="Index"><strong>Quản lý thực đơn →</strong><span>Xem, sửa và ngừng bán đồ uống</span></a>
+                    <a asp-area="Admin" asp-controller="Menu" asp-action="Create"><strong>Thêm đồ uống →</strong><span>Cập nhật món mới cho cửa hàng</span></a>
+                    <a asp-area="" asp-controller="Menu" asp-action="Index"><strong>Xem thực đơn khách hàng →</strong><span>Kiểm tra các món đang hiển thị</span></a>
+                </div>
+                <p class="small text-muted mt-3 mb-0">Đã có <strong>@Model.Customers</strong> khách hàng trong hệ thống.</p>
+            </section>
+            <section class="panel">
+                <div class="panel-heading"><h2>Nguyên liệu sắp hết</h2></div>
+                @if (Model.LowStock.Count == 0)
+                {
+                    <p class="text-muted mb-0">Chưa có nguyên liệu nào ở mức cảnh báo.</p>
+                }
+                else
+                {
+                    <p class="small text-muted">Tối đa 5 nguyên liệu có lượng khả dụng thấp nhất.</p>
+                    <ul class="list-group list-group-flush">
+                    @foreach (var item in Model.LowStock)
+                    {
+                        <li class="list-group-item px-0 d-flex justify-content-between gap-2"><span>@item.Name</span><strong class="text-danger">@((item.OnHand - item.Reserved).ToString("N2", vi)) @item.Unit</strong></li>
+                    }
+                    </ul>
+                }
+            </section>
+        </div>
+    </div>
+</div>
