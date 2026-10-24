@@ -1,12 +1,13 @@
 ﻿
 using DrinkStore.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace DrinkStore.Data
 {
-    public class DrinkStoreDb : DbContext
+    public class DrinkStoreDb : IdentityDbContext<ApplicationUser>
     {
-        public DrinkStoreDb( DbContextOptions<DrinkStoreDb> options): base(options) { }
+        public DrinkStoreDb(DbContextOptions<DrinkStoreDb> options): base(options) { }
 
         public DbSet<User> Users => Set<User>();
         public DbSet<Customer> Customers => Set<Customer>();
@@ -20,8 +21,7 @@ namespace DrinkStore.Data
         public DbSet<Recipe> Recipes => Set<Recipe>();
         public DbSet<RecipeItem> RecipeItems => Set<RecipeItem>();
 
-        protected override void OnModelCreating(
-            ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 

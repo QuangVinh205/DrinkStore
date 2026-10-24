@@ -1,5 +1,7 @@
 using DrinkStore.Data;
 using Microsoft.EntityFrameworkCore;
+using DrinkStore.Models;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,32 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<DrinkStoreDb>(
     opt => opt.UseSqlServer(
         builder.Configuration.GetConnectionString("DrinkStoreConnection")));
+
+
+builder.Services
+    .AddIdentity<ApplicationUser, IdentityRole>(options =>
+    {
+        options.User.RequireUniqueEmail = true;
+
+        options.Password.RequiredLength = 8;
+        options.Password.RequireDigit = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireNonAlphanumeric = false;
+
+        options.Lockout.DefaultLockoutTimeSpan =
+            TimeSpan.FromMinutes(5);
+        options.Lockout.MaxFailedAccessAttempts = 5;
+    })
+    .AddEntityFrameworkStores<DrinkStoreDb>()
+    .AddDefaultTokenProviders();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+});
+
 
 var app = builder.Build();
 
@@ -23,6 +51,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
