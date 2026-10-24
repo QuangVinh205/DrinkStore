@@ -1,0 +1,21 @@
+@model DrinkStore.Models.MenuItem
+@using System.Globalization
+@{
+    ViewData["Title"] = Model.Name;
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+    var imageUrl = string.IsNullOrWhiteSpace(Model.ImageUrl) ? Url.Content("~/images/drinks.svg") : Model.ImageUrl;
+}
+<nav class="drink-breadcrumb" aria-label="Đường dẫn"><a asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a><span aria-hidden="true">/</span><a asp-action="Index" asp-route-q="@Context.Request.Query["q"]">Thực đơn</a><span aria-hidden="true">/</span><span aria-current="page">@Model.Name</span></nav>
+<section class="drink-detail" aria-labelledby="drink-name" data-name="@Model.Name">
+    <div class="drink-detail-image product-image"><img src="@imageUrl" alt="@Model.Name" data-fallback-src="@Url.Content("~/images/drinks.svg")" width="650" height="650" fetchpriority="high" /></div>
+    <div class="drink-detail-copy">
+        <p class="fresh-pill">DRINKSTORE / CHI TIẾT ĐỒ UỐNG</p>
+        <h1 id="drink-name">@Model.Name</h1>
+        <span class="availability">Đang phục vụ</span>
+        <p class="drink-detail-price">@Model.BasePrice.ToString("N0", vi) <span>₫</span></p>
+        <p class="drink-price-note">Giá cơ bản của đồ uống</p>
+        <div class="drink-description"><h2>Về món đồ uống này</h2><p>@(string.IsNullOrWhiteSpace(Model.Description) ? "Một lựa chọn cho phút nghỉ ngơi của bạn. Khám phá hương vị yêu thích cùng DrinkStore." : Model.Description)</p></div>
+        <div class="drink-order-note"><strong>Bạn muốn thưởng thức món này?</strong><p>Hiện bạn có thể xem thực đơn và thông tin đồ uống tại đây. Đặt hàng trực tuyến chưa được hỗ trợ.</p></div>
+        <a class="btn btn-primary" asp-action="Index" asp-route-q="@Context.Request.Query["q"]">← Quay lại thực đơn</a>
+    </div>
+</section>

@@ -1,40 +1,31 @@
-﻿@model IEnumerable<DrinkStore.Models.MenuItem>
-
+@model IEnumerable<DrinkStore.Models.MenuItem>
+@using System.Globalization
 @{
-    ViewData["Title"] = "Menu đồ uống";
+    ViewData["Title"] = "Thực đơn đồ uống";
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+    var items = Model.ToList();
 }
-
-<div class="container mt-4">
-    <h2 class="text-center mb-4">MENU ĐỒ UỐNG</h2>
-
-    <div class="row">
-        @foreach (var item in Model)
+<section class="fresh-menu-heading" aria-labelledby="menu-title"><p class="fresh-pill">THE DRINK LIST</p><h1 id="menu-title">Bạn chọn món.<br /><span>Chúng mình chọn niềm vui.</span></h1><p>Từ cà phê đậm đà đến những ly trà thanh mát.</p></section>
+<section class="menu-catalog" id="drink-list" data-menu aria-label="Thực đơn đồ uống">
+    <div class="menu-toolbar">
+        <div class="search-field"><label for="menu-search">Tìm đồ uống</label><input id="menu-search" type="search" placeholder="Tên món hoặc hương vị…" autocomplete="off" value="@Context.Request.Query["q"]" /></div>
+        <div class="sort-field"><label for="menu-sort">Sắp xếp theo</label><select id="menu-sort"><option value="default">Tên A → Z</option><option value="price-asc">Giá thấp → cao</option><option value="price-desc">Giá cao → thấp</option></select></div>
+    </div>
+    <div class="category-tabs" role="group" aria-label="Lọc theo hương vị"><button type="button" class="selected" data-menu-query="" aria-pressed="true">Tất cả đồ uống</button><button type="button" data-menu-query="cà phê" aria-pressed="false">Cà phê</button><button type="button" data-menu-query="trà" aria-pressed="false">Trà & trà sữa</button><button type="button" data-menu-query="matcha" aria-pressed="false">Matcha</button></div>
+    <div class="menu-meta"><p id="menu-count" role="status" aria-live="polite">@items.Count đồ uống</p><span>Giá hiển thị theo giá cơ bản</span></div>
+    @if (items.Count == 0)
+    {
+        <div class="menu-empty"><span aria-hidden="true">🍵</span><h2>Thực đơn đang được chuẩn bị</h2><p>Hãy quay lại sau để khám phá các món mới nhé.</p><a class="btn btn-outline-primary" asp-controller="Home" asp-action="Index">Về trang chủ</a></div>
+    }
+    <div class="product-grid" id="product-grid">
+        @foreach (var item in items)
         {
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="@item.ImageUrl"
-                         class="card-img-top"
-                         alt="@item.Name"
-                         style="height:220px;object-fit:cover;" />
-
-                    <div class="card-body">
-                        <h5 class="card-title">@item.Name</h5>
-
-                        <p class="card-text">
-                            @item.Description
-                        </p>
-
-                        <h5 class="text-danger">
-                            @item.BasePrice.ToString("N0") đ
-                        </h5>
-
-                        <button class="btn btn-primary"
-                                disabled>
-                            Thêm vào giỏ hàng
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <a class="product-card" asp-area="" asp-controller="Menu" asp-action="Details" asp-route-id="@item.ItemId" asp-route-q="@Context.Request.Query["q"]" aria-label="Xem chi tiết @item.Name" data-name="@item.Name" data-description="@item.Description" data-price="@item.BasePrice.ToString(CultureInfo.InvariantCulture)">
+                <div class="product-image"><img src="@(string.IsNullOrWhiteSpace(item.ImageUrl) ? Url.Content("~/images/drinks.svg") : item.ImageUrl)" alt="@item.Name" data-fallback-src="@Url.Content("~/images/drinks.svg")" loading="lazy" width="400" height="320" /><span class="product-tag">Đồ uống</span></div>
+                <div class="product-body"><h2>@item.Name</h2><p>@(string.IsNullOrWhiteSpace(item.Description) ? "Một lựa chọn cho phút nghỉ ngơi của bạn." : item.Description)</p><div class="product-bottom"><strong>@item.BasePrice.ToString("N0", vi) <small>₫</small></strong><span class="availability">Đang phục vụ</span></div><span class="product-detail-hint">Xem chi tiết <span aria-hidden="true">→</span></span></div>
+            </a>
         }
     </div>
-</div>
+    <div class="menu-empty" id="no-results" hidden><h2>Chưa tìm thấy món phù hợp</h2><p>Thử tên ngắn hơn hoặc tìm một hương vị khác.</p><button class="btn btn-outline-primary" id="reset-search" type="button">Xem tất cả đồ uống</button></div>
+    <p class="ordering-note">Bạn có thể tham khảo thực đơn tại đây. Tính năng đặt hàng trực tuyến đang được hoàn thiện.</p>
+</section>

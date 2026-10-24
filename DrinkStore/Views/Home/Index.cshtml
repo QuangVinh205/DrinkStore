@@ -1,8 +1,14 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@{ ViewData["Title"] = "Chọn vị ngon cho ngày của bạn"; }
+<section class="fresh-intro page-width" aria-labelledby="fresh-title">
+    <p class="fresh-pill">COFFEE, TEA & A GOOD DAY</p>
+    <h1 id="fresh-title">Ngày đẹp hơn.<br /><span>Từ một ly ngon.</span></h1>
+    <p>Cà phê đúng gu, trà thơm vừa vị. Một chút tươi mới cho ngày của bạn.</p>
+    <a class="btn btn-primary" asp-controller="Menu" asp-action="Index">Tìm đồ uống yêu thích <span aria-hidden="true">→</span></a>
+</section>
+<section class="drink-triptych page-width" aria-label="Khám phá các hương vị">
+    <a class="triptych-card coffee-panel" asp-controller="Menu" asp-action="Index" asp-route-q="cà phê"><img src="~/images/caphesua.jpg" alt="Cà phê sữa đá" width="600" height="700" fetchpriority="high" /><div><span>COFFEE / 01</span><h2>Đậm vị.<br />Đầy cảm hứng.</h2><b aria-hidden="true">↗</b></div></a>
+    <a class="triptych-card matcha-panel" asp-controller="Menu" asp-action="Index" asp-route-q="matcha"><img src="~/images/matcha.jpg" alt="Matcha latte với sữa tươi" width="600" height="700" fetchpriority="high" /><div><span>MATCHA / 02</span><h2>Êm dịu.<br />Theo cách bạn thích.</h2><b aria-hidden="true">↗</b></div></a>
+    <a class="triptych-card fruit-panel" asp-controller="Menu" asp-action="Index" asp-route-q="trà"><img src="~/images/tradao.jpg" alt="Trà đào cam sả mát lạnh" width="600" height="700" fetchpriority="high" /><div><span>TEA & FRUIT / 03</span><h2>Tươi mát.<br />Thêm chút yêu đời.</h2><b aria-hidden="true">↗</b></div></a>
+</section>
+<section class="fresh-shortcuts page-width" aria-labelledby="shortcut-title"><div><p class="eyebrow">HÔM NAY BẠN THÍCH GÌ?</p><h2 id="shortcut-title">Chọn theo tâm trạng.</h2></div><div class="mood-links"><a asp-controller="Menu" asp-action="Index" asp-route-q="cà phê"><span aria-hidden="true">☀</span> Cần tỉnh táo <b>↗</b></a><a asp-controller="Menu" asp-action="Index" asp-route-q="trà sữa"><span aria-hidden="true">♡</span> Thèm ngọt ngào <b>↗</b></a><a asp-controller="Menu" asp-action="Index" asp-route-q="trà"><span aria-hidden="true">✳</span> Muốn thư giãn <b>↗</b></a></div></section>
+<section class="fresh-story page-width" id="our-story"><div class="fresh-story-title"><span aria-hidden="true">d.</span><p>MỘT CHÚT VỀ CHÚNG MÌNH</p></div><div><h2>Những điều nhỏ.<br /><span>Làm nên ngày vui.</span></h2><p>Một cuộc hẹn với bạn bè. Một phút nghỉ giữa giờ. Hay một buổi sáng dành riêng cho mình. DrinkStore ở đây để những khoảnh khắc ấy thêm một hương vị bạn yêu.</p><a class="text-link" asp-controller="Menu" asp-action="Index">Khám phá toàn bộ thực đơn →</a></div></section>

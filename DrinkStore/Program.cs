@@ -2,6 +2,7 @@ using DrinkStore.Data;
 using Microsoft.EntityFrameworkCore;
 using DrinkStore.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +50,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();
@@ -65,5 +67,15 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
-await IdentitySeeder.SeedRolesAsync(app.Services);
+try
+{
+    await IdentitySeeder.SeedRolesAsync(app.Services);
+}
+catch (SqlException ex) when (app.Environment.IsDevelopment())
+{
+    // Public pages can render locally while SQL Server is unavailable.
+    // Authentication and data-backed pages still require the configured database.
+    app.Logger.LogError(ex,
+        "Cannot seed Identity roles. Check DrinkStoreConnection and start SQL Server, then restart the app.");
+}
 app.Run();
