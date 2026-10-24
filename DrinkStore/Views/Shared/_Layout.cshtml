@@ -28,6 +28,50 @@
                         </li>
                     </ul>
                 </div>
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <span class="nav-link">
+                        Xin chào, @User.Identity.Name
+                    </span>
+
+                    @if (User.IsInRole("ShiftManager"))
+                    {
+                        <a asp-area="Admin"
+                           asp-controller="Dashboard"
+                           asp-action="Index"
+                           class="nav-link">
+                            Quản trị
+                        </a>
+                    }
+
+                    <form asp-area=""
+                          asp-controller="Account"
+                          asp-action="Logout"
+                          method="post">
+                        <button type="submit"
+                                class="btn btn-outline-danger">
+                            Đăng xuất
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-area=""
+                       asp-controller="Account"
+                       asp-action="Login"
+                       class="nav-link">
+                        Đăng nhập
+                    </a>
+
+                    <a asp-area=""
+                       asp-controller="Account"
+                       asp-action="Register"
+                       class="nav-link">
+                        Đăng ký
+                    </a>
+                }
+
             </div>
         </nav>
     </header>

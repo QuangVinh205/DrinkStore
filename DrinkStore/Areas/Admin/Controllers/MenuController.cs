@@ -2,10 +2,12 @@
 using DrinkStore.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DrinkStore.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "ShiftManager")]
     public class MenuController : Controller
     {
         private readonly DrinkStoreDb _context;
