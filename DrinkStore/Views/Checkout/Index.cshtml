@@ -1,0 +1,54 @@
+@model DrinkStore.ViewModels.CheckoutViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Thông tin đặt hàng";
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+}
+@section Styles { <link rel="stylesheet" href="~/css/checkout.css" asp-append-version="true" /> }
+<nav class="drink-breadcrumb" aria-label="Đường dẫn">
+    <a asp-controller="Home" asp-action="Index">Trang chủ</a><span aria-hidden="true">/</span>
+    <a asp-controller="Cart" asp-action="Index">Giỏ hàng</a><span aria-hidden="true">/</span><span aria-current="page">Đặt hàng</span>
+</nav>
+<section class="checkout-page" aria-labelledby="checkout-title">
+    <header class="checkout-heading"><p class="fresh-pill">DRINKSTORE / ĐẶT HÀNG</p><h1 id="checkout-title">Sắp đến lúc thưởng thức.</h1><p>Kiểm tra món đã chọn và cho chúng mình biết thông tin giao hàng.</p></header>
+    <form asp-controller="Checkout" asp-action="Index" method="post" class="checkout-layout">
+        <div class="checkout-panel">
+            <h2>Thông tin giao hàng</h2>
+            <p class="checkout-muted">Vui lòng điền đầy đủ các thông tin bên dưới.</p>
+            <div asp-validation-summary="All" class="text-danger" role="alert"></div>
+            <div class="mb-4">
+                <label asp-for="FullName" class="form-label">Họ và tên</label>
+                <input asp-for="FullName" class="form-control" autocomplete="name" maxlength="100" required placeholder="Họ tên người nhận" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+            <div class="mb-4">
+                <label asp-for="Phone" class="form-label">Số điện thoại</label>
+                <input asp-for="Phone" type="tel" class="form-control" autocomplete="tel" required placeholder="Số điện thoại liên hệ" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+            <div class="mb-4">
+                <label asp-for="Address" class="form-label">Địa chỉ giao hàng</label>
+                <textarea asp-for="Address" class="form-control" autocomplete="street-address" rows="3" required placeholder="Số nhà, tên đường, phường/xã, tỉnh/thành phố"></textarea>
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+            <a asp-controller="Cart" asp-action="Index">← Quay lại chỉnh sửa giỏ hàng</a>
+        </div>
+        <aside class="checkout-panel checkout-summary" aria-labelledby="summary-title">
+            <h2 id="summary-title">Đồ uống của bạn</h2>
+            <p class="checkout-muted">@Model.CartItems.Sum(item => item.Quantity) ly · @Model.CartItems.Count món</p>
+            <ul class="checkout-items">
+                @foreach (var item in Model.CartItems)
+                {
+                    <li>
+                        <div><strong>@item.Name</strong><small>@item.Quantity × @item.Price.ToString("N0", vi) ₫</small></div>
+                        <span>@item.TotalPrice.ToString("N0", vi) ₫</span>
+                    </li>
+                }
+            </ul>
+            <dl class="checkout-totals"><div><dt>Tổng tiền đồ uống</dt><dd>@Model.Total.ToString("N0", vi) ₫</dd></div></dl>
+            <p class="checkout-muted">Giá đồ uống được kiểm tra lại khi xác nhận đơn. Thao tác này tạo đơn hàng, chưa thực hiện thanh toán trực tuyến.</p>
+            <button class="btn btn-primary w-100" type="submit">Xác nhận đặt hàng →</button>
+        </aside>
+    </form>
+</section>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

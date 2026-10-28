@@ -1,0 +1,38 @@
+@model List<DrinkStore.Models.Order>
+@using System.Globalization
+@{
+    ViewData["Title"] = "Đơn hàng của tôi";
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+}
+@section Styles { <link rel="stylesheet" href="~/css/checkout.css" asp-append-version="true" /> }
+<nav class="drink-breadcrumb" aria-label="Đường dẫn"><a asp-controller="Home" asp-action="Index">Trang chủ</a><span aria-hidden="true">/</span><span aria-current="page">Đơn hàng</span></nav>
+<section class="checkout-page" aria-labelledby="orders-title">
+    <header class="checkout-heading"><p class="fresh-pill">DRINKSTORE / ĐƠN HÀNG</p><h1 id="orders-title">Những lần bạn chọn niềm vui.</h1><p>Xem lại đơn hàng và trạng thái xử lý tại đây.</p></header>
+    @if (Model.Count == 0)
+    {
+        <div class="checkout-panel checkout-empty"><h2>Bạn chưa có đơn hàng nào</h2><p class="checkout-muted">Chọn món yêu thích để bắt đầu đơn hàng đầu tiên nhé.</p><a class="btn btn-primary" asp-controller="Menu" asp-action="Index">Khám phá thực đơn →</a></div>
+    }
+    else
+    {
+        <div class="checkout-order-list">
+            @foreach (var order in Model)
+            {
+                var status = order.Status switch
+                {
+                    OrderStatus.Pending => "Chờ xác nhận",
+                    OrderStatus.Confirmed => "Đã xác nhận",
+                    OrderStatus.Preparing => "Đang chuẩn bị",
+                    OrderStatus.Completed => "Hoàn thành",
+                    OrderStatus.Cancelled => "Đã hủy",
+                    _ => "Đang cập nhật"
+                };
+                <article class="checkout-panel checkout-order" aria-labelledby="order-@order.OrderId">
+                    <div><h2 id="order-@order.OrderId">Đơn hàng #@order.OrderId</h2><p class="checkout-muted">@order.OrderDate.AddHours(7).ToString("dd/MM/yyyy HH:mm", vi) (giờ Việt Nam) · @order.OrderItems.Sum(item => item.Quantity) ly</p></div>
+                    <span class="checkout-status" data-status="@order.Status">@status</span>
+                    <strong class="checkout-order-total">@order.Total.ToString("N0", vi) ₫</strong>
+                    <a class="btn btn-outline-primary btn-sm" asp-action="Success" asp-route-id="@order.OrderId" aria-label="Xem đơn hàng số @order.OrderId">Xem chi tiết →</a>
+                </article>
+            }
+        </div>
+    }
+</section>

@@ -1,0 +1,58 @@
+@model List<DrinkStore.Models.Order>
+@using System.Globalization
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+    string? search = ViewBag.Search;
+    OrderStatus? selectedStatus = ViewBag.Status;
+    var statuses = new[] {
+        (OrderStatus.Pending, "Chờ xác nhận"), (OrderStatus.Confirmed, "Đã xác nhận"),
+        (OrderStatus.Preparing, "Đang chuẩn bị"), (OrderStatus.Completed, "Hoàn thành"), (OrderStatus.Cancelled, "Đã hủy")
+    };
+}
+@section Styles { <link rel="stylesheet" href="~/css/admin-orders.css" asp-append-version="true" /> }
+<section class="admin-orders" aria-labelledby="orders-title">
+    <header class="orders-heading">
+        <div><p class="eyebrow">DRINKSTORE / QUẢN TRỊ</p><h1 id="orders-title">Quản lý đơn hàng</h1><p>Theo dõi đơn và cập nhật tiến độ phục vụ.</p></div>
+        <a class="btn btn-outline-primary" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">← Tổng quan</a>
+    </header>
+    <form asp-area="Admin" asp-controller="Orders" asp-action="Index" method="get" class="orders-filters">
+        <div><label for="order-search" class="form-label">Tìm đơn hàng</label><input id="order-search" class="form-control" name="search" value="@search" type="search" placeholder="Mã đơn hoặc tên khách hàng" /></div>
+        <div><label for="order-status" class="form-label">Trạng thái</label><select id="order-status" class="form-select" name="status">
+            <option value="">Tất cả trạng thái</option>
+            @foreach (var (value, label) in statuses)
+            {
+                <option value="@value" selected="@(selectedStatus == value)">@label</option>
+            }
+        </select></div>
+        <button class="btn btn-primary" type="submit">Tìm kiếm</button>
+        <a asp-area="Admin" asp-controller="Orders" asp-action="Index">Xóa bộ lọc</a>
+    </form>
+    <div class="orders-panel">
+        <div class="orders-panel-heading"><h2>Danh sách đơn hàng</h2><span>@Model.Count đơn · Mới nhất trước</span></div>
+        @if (Model.Count == 0)
+        {
+            <div class="orders-empty"><h3>Chưa có đơn hàng phù hợp</h3><p>Thử thay đổi từ khóa hoặc trạng thái để xem các đơn khác.</p><a asp-area="Admin" asp-controller="Orders" asp-action="Index">Xem tất cả đơn hàng →</a></div>
+        }
+        else
+        {
+            <div class="table-responsive"><table class="table align-middle mb-0">
+                <caption class="visually-hidden">Danh sách đơn hàng, thời gian theo giờ Việt Nam</caption>
+                <thead><tr><th scope="col">Mã đơn</th><th scope="col">Khách hàng</th><th scope="col">Thời gian (VN)</th><th scope="col">Tổng tiền</th><th scope="col">Trạng thái</th><th scope="col">Thao tác</th></tr></thead>
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td><a class="fw-semibold" asp-area="Admin" asp-controller="Orders" asp-action="Details" asp-route-id="@order.OrderId">#@order.OrderId</a></td>
+                            <td><strong>@order.Customer.Name</strong><small class="orders-secondary">@order.Customer.Phone</small></td>
+                            <td class="text-nowrap">@order.OrderDate.AddHours(7).ToString("dd/MM/yyyy HH:mm", vi)</td>
+                            <td class="text-nowrap fw-semibold">@order.Total.ToString("N0", vi) ₫</td>
+                            <td><partial name="_OrderStatus" model="order.Status" /></td>
+                            <td><a class="btn btn-outline-primary btn-sm text-nowrap" asp-area="Admin" asp-controller="Orders" asp-action="Details" asp-route-id="@order.OrderId" aria-label="Xem chi tiết đơn @order.OrderId">Chi tiết →</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table></div>
+        }
+    </div>
+</section>

@@ -1,0 +1,80 @@
+@model DrinkStore.Models.Order
+@using System.Globalization
+@{
+    ViewData["Title"] = $"Đơn hàng #{Model.OrderId}";
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+    var transitions = Model.Status switch
+    {
+        OrderStatus.Pending => new[] { (OrderStatus.Confirmed, "Xác nhận đơn"), (OrderStatus.Cancelled, "Hủy đơn") },
+        OrderStatus.Confirmed => new[] { (OrderStatus.Preparing, "Bắt đầu chuẩn bị"), (OrderStatus.Cancelled, "Hủy đơn") },
+        OrderStatus.Preparing => new[] { (OrderStatus.Completed, "Hoàn thành đơn") },
+        _ => Array.Empty<(OrderStatus, string)>()
+    };
+}
+@section Styles { <link rel="stylesheet" href="~/css/admin-orders.css" asp-append-version="true" /> }
+<section class="admin-orders" aria-labelledby="order-title">
+    <header class="orders-heading">
+        <div><p class="eyebrow">DRINKSTORE / QUẢN TRỊ ĐƠN HÀNG</p><h1 id="order-title">Đơn hàng #@Model.OrderId</h1><p>Đặt lúc @Model.OrderDate.AddHours(7).ToString("dd/MM/yyyy HH:mm", vi) · Giờ Việt Nam</p></div>
+        <a class="btn btn-outline-primary" asp-area="Admin" asp-controller="Orders" asp-action="Index">← Danh sách đơn hàng</a>
+    </header>
+    @if (TempData["Success"] is string success)
+    {
+        <div class="alert alert-success" role="status">@success</div>
+    }
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-danger" role="alert">@error</div>
+    }
+    <div class="orders-detail-layout">
+        <div class="orders-panel">
+            <div class="orders-panel-heading"><h2>Đồ uống đã đặt</h2><span>@Model.OrderItems.Sum(item => item.Quantity) ly</span></div>
+            <div class="table-responsive"><table class="table align-middle mb-0">
+                <caption class="visually-hidden">Chi tiết đồ uống và giá tại thời điểm đặt hàng</caption>
+                <thead><tr><th scope="col">Đồ uống</th><th scope="col">Size</th><th scope="col">Số lượng</th><th scope="col">Đơn giá</th><th scope="col">Thành tiền</th></tr></thead>
+                <tbody>
+                    @foreach (var item in Model.OrderItems)
+                    {
+                        <tr><td class="fw-semibold">@item.MenuItem.Name</td><td>@item.Size</td><td>@item.Quantity</td><td class="text-nowrap">@item.UnitPriceSnapshot.ToString("N0", vi) ₫</td><td class="text-nowrap fw-semibold">@item.GetSubtotal().ToString("N0", vi) ₫</td></tr>
+                    }
+                </tbody>
+            </table></div>
+            <dl class="orders-totals">
+                <div><dt>Tạm tính</dt><dd>@Model.Subtotal.ToString("N0", vi) ₫</dd></div>
+                <div><dt>Giảm giá</dt><dd>@Model.Discount.ToString("N0", vi) ₫</dd></div>
+                @if (!string.IsNullOrWhiteSpace(Model.CouponCode))
+                {
+                    <div><dt>Mã ưu đãi</dt><dd>@Model.CouponCode</dd></div>
+                }
+                <div class="orders-grand-total"><dt>Tổng tiền</dt><dd>@Model.Total.ToString("N0", vi) ₫</dd></div>
+            </dl>
+        </div>
+        <aside class="orders-sidebar">
+            <section class="orders-panel orders-info" aria-labelledby="customer-title">
+                <h2 id="customer-title">Thông tin khách hàng</h2>
+                <dl><dt>Họ và tên</dt><dd>@Model.Customer.Name</dd><dt>Số điện thoại</dt><dd>@Model.Customer.Phone</dd><dt>Email</dt><dd>@Model.Customer.Email</dd><dt>Địa chỉ giao hàng</dt><dd>@Model.Customer.Address</dd></dl>
+            </section>
+            <section class="orders-panel orders-info" aria-labelledby="status-title">
+                <h2 id="status-title">Trạng thái xử lý</h2>
+                <partial name="_OrderStatus" model="Model.Status" />
+                @if (transitions.Length > 0)
+                {
+                    <p class="orders-secondary mt-3">Chọn bước tiếp theo cho đơn hàng.</p>
+                    <div class="orders-status-actions">
+                        @foreach (var (status, label) in transitions)
+                        {
+                            <form asp-area="Admin" asp-controller="Orders" asp-action="UpdateStatus" method="post">
+                                <input type="hidden" name="id" value="@Model.OrderId" />
+                                <input type="hidden" name="newStatus" value="@status" />
+                                <button class="btn @(status == OrderStatus.Cancelled ? "btn-outline-danger" : "btn-primary") w-100" type="submit">@label</button>
+                            </form>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="orders-secondary mt-3 mb-0">Đơn hàng đã kết thúc xử lý, không thể thay đổi trạng thái.</p>
+                }
+            </section>
+        </aside>
+    </div>
+</section>

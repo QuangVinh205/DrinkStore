@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="~/DrinkStore.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/fresh.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="@(isAdmin ? "admin-page" : "store-page") @(isHome ? "home-page" : "inner-page")">
     <a class="skip-link" href="#main-content">Bỏ qua điều hướng</a>
@@ -27,6 +28,11 @@
                     <a class="nav-link @(isHome ? "active" : "")" aria-current="@(isHome ? "page" : null)" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
                     <a class="nav-link @(!isAdmin && controller == "Menu" ? "active" : "")" aria-current="@(!isAdmin && controller == "Menu" ? "page" : null)" asp-area="" asp-controller="Menu" asp-action="Index">Thực đơn</a>
                     <a class="nav-link" href="@Url.Action("Index", "Home", new { area = "" })#our-story">Câu chuyện</a>
+                    @if (User.IsInRole("Customer"))
+                    {
+                        <a class="nav-link @(!isAdmin && controller == "Cart" ? "active" : "")" aria-current="@(!isAdmin && controller == "Cart" ? "page" : null)" asp-area="" asp-controller="Cart" asp-action="Index">Giỏ hàng</a>
+                        <a class="nav-link @(!isAdmin && controller == "Checkout" && action == "MyOrders" ? "active" : "")" aria-current="@(!isAdmin && controller == "Checkout" && action == "MyOrders" ? "page" : null)" asp-area="" asp-controller="Checkout" asp-action="MyOrders">Đơn hàng</a>
+                    }
                     @if (User.IsInRole("ShiftManager")) { <a class="nav-link @(isAdmin ? "active" : "")" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Quản trị</a> }
                 </div>
                 <div class="account-nav">

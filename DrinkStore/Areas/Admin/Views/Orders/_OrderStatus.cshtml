@@ -1,0 +1,13 @@
+@model DrinkStore.Models.OrderStatus
+@{
+    var label = Model switch
+    {
+        OrderStatus.Pending => "Chờ xác nhận",
+        OrderStatus.Confirmed => "Đã xác nhận",
+        OrderStatus.Preparing => "Đang chuẩn bị",
+        OrderStatus.Completed => "Hoàn thành",
+        OrderStatus.Cancelled => "Đã hủy",
+        _ => "Không xác định"
+    };
+}
+<span class="order-status" data-status="@Model">@label</span>

@@ -525,6 +525,13 @@ namespace DrinkStore.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("IdentityUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasIndex("IdentityUserId")
+                        .IsUnique()
+                        .HasFilter("[IdentityUserId] IS NOT NULL");
+
                     b.HasDiscriminator().HasValue("Customer");
                 });
 
@@ -670,6 +677,14 @@ namespace DrinkStore.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DrinkStore.Models.Customer", b =>
+                {
+                    b.HasOne("DrinkStore.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("IdentityUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("DrinkStore.Models.Coupon", b =>

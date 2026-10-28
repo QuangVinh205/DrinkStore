@@ -15,7 +15,29 @@
         <p class="drink-detail-price">@Model.BasePrice.ToString("N0", vi) <span>₫</span></p>
         <p class="drink-price-note">Giá cơ bản của đồ uống</p>
         <div class="drink-description"><h2>Về món đồ uống này</h2><p>@(string.IsNullOrWhiteSpace(Model.Description) ? "Một lựa chọn cho phút nghỉ ngơi của bạn. Khám phá hương vị yêu thích cùng DrinkStore." : Model.Description)</p></div>
-        <div class="drink-order-note"><strong>Bạn muốn thưởng thức món này?</strong><p>Hiện bạn có thể xem thực đơn và thông tin đồ uống tại đây. Đặt hàng trực tuyến chưa được hỗ trợ.</p></div>
+        <div class="drink-order-note">
+            @if (User.IsInRole("Customer"))
+            {
+                <form asp-controller="Cart" asp-action="Add" method="post">
+                    <input type="hidden" name="id" value="@Model.ItemId" />
+                    <label for="drink-quantity" class="form-label">Số lượng</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <input id="drink-quantity" class="form-control" type="number" name="quantity" value="1" min="1" max="99" step="1" required style="width: 85px;" />
+                        <button class="btn btn-primary" type="submit">Thêm vào giỏ hàng</button>
+                    </div>
+                </form>
+                <p>Bạn có thể thay đổi số lượng và tiến hành đặt hàng trong giỏ hàng.</p>
+            }
+            else if (User.Identity?.IsAuthenticated != true)
+            {
+                <strong>Bạn muốn lưu món này vào giỏ hàng?</strong>
+                <p><a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Url.Action("Details", "Menu", new { id = Model.ItemId })">Đăng nhập</a> để thêm đồ uống yêu thích.</p>
+            }
+            else
+            {
+                <p>Giỏ hàng và đặt hàng dành cho tài khoản khách hàng.</p>
+            }
+        </div>
         <a class="btn btn-primary" asp-action="Index" asp-route-q="@Context.Request.Query["q"]">← Quay lại thực đơn</a>
     </div>
 </section>

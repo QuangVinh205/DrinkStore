@@ -9,6 +9,79 @@
         <div><p class="eyebrow">DRINKSTORE / QUẢN TRỊ</p><h1>Tổng quan cửa hàng</h1><p class="text-muted mb-0">Ngày @Model.Today.ToString("dd/MM/yyyy") · Giờ Việt Nam</p></div>
         <a asp-area="Admin" asp-controller="Menu" asp-action="Create" class="btn btn-primary">+ Thêm đồ uống</a>
     </div>
+    <section class="panel mb-4" aria-labelledby="sales-title">
+        <div class="panel-heading sales-heading">
+            <div><h2 id="sales-title">Thống kê kinh doanh</h2><p class="text-muted small mb-0 mt-2">@Model.PeriodStart.ToString("dd/MM/yyyy") – @Model.Today.ToString("dd/MM/yyyy") · Giờ Việt Nam</p></div>
+            <form asp-area="Admin" asp-controller="Dashboard" asp-action="Index" method="get" class="sales-filter">
+                <label for="sales-days" class="visually-hidden">Khoảng thống kê</label>
+                <select id="sales-days" name="days" class="form-select">
+                    @foreach (var days in new[] { 7, 30, 90 })
+                    {
+                        <option value="@days" selected="@(Model.Days == days)">@days ngày gần nhất</option>
+                    }
+                </select>
+                <button type="submit" class="btn btn-primary btn-sm">Áp dụng</button>
+            </form>
+        </div>
+        <p class="small text-muted">Doanh thu là tổng tiền sau giảm giá của đơn đang ở trạng thái hoàn thành, được nhóm theo ngày đặt đơn. Số liệu được cập nhật khi tải trang.</p>
+        <div class="sales-metrics">
+            <div><span>Doanh thu trong kỳ</span><strong>@Model.PeriodRevenue.ToString("N0", vi) ₫</strong></div>
+            <div><span>Tất cả đơn trong kỳ</span><strong>@Model.PeriodOrders</strong></div>
+            <div><span>Đơn hoàn thành</span><strong>@Model.CompletedOrders</strong></div>
+            <div><span>Giá trị trung bình / đơn hoàn thành</span><strong>@Model.AverageOrderValue.ToString("N0", vi) ₫</strong></div>
+        </div>
+        <h3 class="sales-subheading">Doanh thu theo ngày</h3>
+        @if (Model.CompletedOrders == 0)
+        {
+            <p class="text-muted">Chưa có đơn hoàn thành trong khoảng thời gian này.</p>
+        }
+        <div class="sales-chart-scroll" tabindex="0" role="region" aria-label="Doanh thu từng ngày, cuộn ngang để xem thêm">
+            <div class="sales-chart" style="--day-count: @Model.Days">
+                @foreach (var day in Model.DailySales)
+                {
+                    var maxRevenue = Model.DailySales.Max(x => x.Revenue);
+                    var height = maxRevenue <= 0 ? 0 : Math.Clamp(day.Revenue / maxRevenue * 100, 0, 100);
+                    var description = $"{day.Date:dd/MM/yyyy}: {day.Revenue.ToString("N0", vi)} ₫, {day.Orders} đơn hoàn thành";
+                    <div class="sales-day" tabindex="0" aria-label="@description" title="@description"><div class="sales-track"><div class="sales-bar" style="height: @height.ToString("0.##", CultureInfo.InvariantCulture)%"></div></div><span>@day.Date.ToString("dd/MM")</span></div>
+                }
+            </div>
+        </div>
+        <details class="sales-data mt-3"><summary>Xem số liệu từng ngày</summary>
+            <div class="table-responsive"><table class="table"><caption class="visually-hidden">Doanh thu từng ngày trong kỳ</caption><thead><tr><th scope="col">Ngày</th><th scope="col">Đơn hoàn thành</th><th scope="col">Doanh thu</th></tr></thead><tbody>
+                @foreach (var day in Model.DailySales)
+                {
+                    <tr><td>@day.Date.ToString("dd/MM/yyyy")</td><td>@day.Orders</td><td>@day.Revenue.ToString("N0", vi) ₫</td></tr>
+                }
+            </tbody></table></div>
+        </details>
+    </section>
+    <div class="row g-4 mb-4">
+        <div class="col-lg-5"><section class="panel h-100"><div class="panel-heading"><h2>Trạng thái đơn trong kỳ</h2></div>
+            <ul class="sales-status-list">
+                @foreach (var item in Model.StatusCounts)
+                {
+                    var label = item.Status switch { OrderStatus.Pending => "Chờ xác nhận", OrderStatus.Confirmed => "Đã xác nhận", OrderStatus.Preparing => "Đang chuẩn bị", OrderStatus.Completed => "Hoàn thành", OrderStatus.Cancelled => "Đã hủy", _ => "Không xác định" };
+                    <li><a asp-area="Admin" asp-controller="Orders" asp-action="Index" asp-route-status="@item.Status">@label</a><strong>@item.Count</strong></li>
+                }
+            </ul><p class="small text-muted mb-0 mt-3">Liên kết mở tất cả đơn của trạng thái tương ứng.</p>
+        </section></div>
+        <div class="col-lg-7"><section class="panel h-100"><div class="panel-heading"><h2>Top 5 đồ uống bán chạy trong kỳ</h2></div>
+            <p class="small text-muted">Theo số ly trong đơn hoàn thành. Giá trị món tính theo giá lúc đặt, trước giảm giá của đơn.</p>
+            @if (Model.TopDrinks.Count == 0)
+            {
+                <p class="text-muted mb-0">Chưa có dữ liệu bán hàng trong kỳ.</p>
+            }
+            else
+            {
+                <div class="table-responsive"><table class="table mb-0"><thead><tr><th scope="col">Đồ uống</th><th scope="col">Số ly</th><th scope="col">Giá trị món</th></tr></thead><tbody>
+                    @foreach (var drink in Model.TopDrinks)
+                    {
+                        <tr><td>@drink.Name</td><td>@drink.Quantity</td><td class="text-nowrap">@drink.Subtotal.ToString("N0", vi) ₫</td></tr>
+                    }
+                </tbody></table></div>
+            }
+        </section></div>
+    </div>
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-xl-3"><section class="stat revenue"><p>Doanh thu hôm nay</p><h2>@Model.Revenue.ToString("N0", vi) <small>₫</small></h2><span>Tổng tiền đơn hoàn thành trong ngày</span></section></div>
         <div class="col-sm-6 col-xl-3"><section class="stat"><p>Đơn hàng hôm nay</p><h2>@Model.OrdersToday</h2><span>Tất cả trạng thái trong ngày</span></section></div>
@@ -39,7 +112,7 @@
                                 OrderStatus.Cancelled => ("Đã hủy", "secondary"),
                                 _ => ("Không xác định", "secondary")
                             };
-                            <tr><td class="fw-semibold">#@order.OrderId</td><td>@(order.Customer?.Name ?? "Không có thông tin")</td><td class="text-nowrap">@order.OrderDate.AddHours(7).ToString("dd/MM HH:mm")</td><td class="text-nowrap">@order.Total.ToString("N0", vi) ₫</td><td><span class="badge bg-@color">@label</span></td></tr>
+                            <tr><td class="fw-semibold"><a asp-area="Admin" asp-controller="Orders" asp-action="Details" asp-route-id="@order.OrderId">#@order.OrderId</a></td><td>@(order.Customer?.Name ?? "Không có thông tin")</td><td class="text-nowrap">@order.OrderDate.AddHours(7).ToString("dd/MM HH:mm")</td><td class="text-nowrap">@order.Total.ToString("N0", vi) ₫</td><td><span class="badge bg-@color">@label</span></td></tr>
                         }
                         </tbody>
                     </table></div>
@@ -50,6 +123,7 @@
             <section class="panel mb-4">
                 <div class="panel-heading"><h2>Thao tác nhanh</h2></div>
                 <div class="shortcuts">
+                    <a asp-area="Admin" asp-controller="Orders" asp-action="Index"><strong>Quản lý đơn hàng →</strong><span>Xem chi tiết và cập nhật trạng thái đơn</span></a>
                     <a asp-area="Admin" asp-controller="Menu" asp-action="Index"><strong>Quản lý thực đơn →</strong><span>Xem, sửa và ngừng bán đồ uống</span></a>
                     <a asp-area="Admin" asp-controller="Menu" asp-action="Create"><strong>Thêm đồ uống →</strong><span>Cập nhật món mới cho cửa hàng</span></a>
                     <a asp-area="" asp-controller="Menu" asp-action="Index"><strong>Xem thực đơn khách hàng →</strong><span>Kiểm tra các món đang hiển thị</span></a>

@@ -5,11 +5,9 @@ namespace DrinkStore.Models
     {
         public int OrderId { get; set; }
 
-        public DateTime OrderDate { get; set; }
-            = DateTime.UtcNow;
+        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
 
-        public OrderStatus Status { get; set; }
-            = OrderStatus.Pending;
+        public OrderStatus Status { get; set; } = OrderStatus.Pending;
 
         public decimal Subtotal { get; set; }
 

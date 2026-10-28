@@ -1,0 +1,32 @@
+@model DrinkStore.Models.Order
+@using System.Globalization
+@{
+    ViewData["Title"] = "Đặt hàng thành công";
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+}
+@section Styles { <link rel="stylesheet" href="~/css/checkout.css" asp-append-version="true" /> }
+<section class="checkout-page checkout-success" aria-labelledby="success-title">
+    <header class="checkout-heading">
+        <span class="checkout-success-mark" aria-hidden="true">✓</span>
+        <p class="fresh-pill">DRINKSTORE / ĐÃ NHẬN ĐƠN HÀNG</p>
+        <h1 id="success-title">Cảm ơn bạn đã đặt hàng!</h1>
+        <p>Đơn hàng <strong>#@Model.OrderId</strong> đã được ghi nhận. Bạn có thể theo dõi trạng thái trong mục Đơn hàng.</p>
+    </header>
+    <div class="checkout-panel">
+        <h2>Thông tin đơn hàng #@Model.OrderId</h2>
+        <p class="checkout-muted">Thời gian đặt: <time datetime="@Model.OrderDate.ToString("yyyy-MM-ddTHH:mm:ss'Z'")">@Model.OrderDate.AddHours(7).ToString("dd/MM/yyyy HH:mm", vi)</time> (giờ Việt Nam)</p>
+        <ul class="checkout-items">
+            @foreach (var item in Model.OrderItems)
+            {
+                <li><div><strong>@item.MenuItem.Name</strong><small>@item.Quantity × @item.UnitPriceSnapshot.ToString("N0", vi) ₫ · Size @item.Size</small></div><span>@item.GetSubtotal().ToString("N0", vi) ₫</span></li>
+            }
+        </ul>
+        <dl class="checkout-totals">
+            <div><dt>Tạm tính</dt><dd>@Model.Subtotal.ToString("N0", vi) ₫</dd></div>
+            <div><dt>Giảm giá</dt><dd>@Model.Discount.ToString("N0", vi) ₫</dd></div>
+            <div class="checkout-total"><dt>Tổng tiền</dt><dd>@Model.Total.ToString("N0", vi) ₫</dd></div>
+        </dl>
+        <p class="checkout-muted">Đơn hàng đã được tạo. Đây không phải xác nhận thanh toán.</p>
+        <div class="checkout-actions"><a class="btn btn-primary" asp-action="MyOrders">Xem đơn hàng của tôi</a><a class="btn btn-outline-primary" asp-controller="Menu" asp-action="Index">Tiếp tục khám phá</a></div>
+    </div>
+</section>

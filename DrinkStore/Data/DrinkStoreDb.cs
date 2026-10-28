@@ -32,6 +32,18 @@ namespace DrinkStore.Data
                 .HasValue<Customer>("Customer")
                 .HasValue<ShiftManager>("ShiftManager");
 
+            // Liên kết Customer với tài khoản ASP.NET Core Identity
+            modelBuilder.Entity<Customer>()
+                .HasOne<ApplicationUser>()
+                .WithMany()
+                .HasForeignKey(x => x.IdentityUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Mỗi tài khoản Identity chỉ có tối đa một Customer
+            modelBuilder.Entity<Customer>()
+                .HasIndex(x => x.IdentityUserId)
+                .IsUnique()
+                .HasFilter("[IdentityUserId] IS NOT NULL");
             // Khóa chính
             modelBuilder.Entity<MenuItem>()
                 .HasKey(x => x.ItemId);

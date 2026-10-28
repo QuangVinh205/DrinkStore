@@ -1,0 +1,75 @@
+@model List<DrinkStore.ViewModels.CartItemViewModel>
+@using System.Globalization
+@{
+    ViewData["Title"] = "Giỏ hàng";
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+    var total = Model.Sum(item => item.TotalPrice);
+    var quantity = Model.Sum(item => item.Quantity);
+}
+<nav class="drink-breadcrumb" aria-label="Đường dẫn">
+    <a asp-controller="Home" asp-action="Index">Trang chủ</a><span aria-hidden="true">/</span><span aria-current="page">Giỏ hàng</span>
+</nav>
+<section class="cart-page" aria-labelledby="cart-title">
+    <header class="cart-heading">
+        <p class="fresh-pill">DRINKSTORE / GIỎ HÀNG</p>
+        <h1 id="cart-title">Những món bạn chọn.</h1>
+        <p>Một ly ngon, thêm chút niềm vui cho ngày của bạn.</p>
+    </header>
+    @if (Model.Count == 0)
+    {
+        <div class="cart-empty">
+            <img src="~/images/drinks.svg" alt="" width="160" height="160" />
+            <h2>Giỏ hàng đang chờ món ngon</h2>
+            <p>Khám phá thực đơn và chọn đồ uống yêu thích của bạn nhé.</p>
+            <a class="btn btn-primary" asp-controller="Menu" asp-action="Index">Khám phá thực đơn <span aria-hidden="true">↗</span></a>
+        </div>
+    }
+    else
+    {
+        <div class="cart-layout">
+            <div class="cart-items">
+                <div class="cart-list-heading"><h2>Đồ uống của bạn</h2><span>@quantity ly · @Model.Count món</span></div>
+                @foreach (var item in Model)
+                {
+                    var imageUrl = string.IsNullOrWhiteSpace(item.ImageUrl) ? Url.Content("~/images/drinks.svg") : Url.Content(item.ImageUrl);
+                    <article class="cart-item" aria-labelledby="item-name-@item.MenuItemId">
+                        <a class="cart-image" asp-controller="Menu" asp-action="Details" asp-route-id="@item.MenuItemId" aria-label="Xem @item.Name">
+                            <img src="@imageUrl" alt="@item.Name" data-fallback-src="@Url.Content("~/images/drinks.svg")" width="112" height="112" />
+                        </a>
+                        <div class="cart-item-copy">
+                            <h3 id="item-name-@item.MenuItemId"><a asp-controller="Menu" asp-action="Details" asp-route-id="@item.MenuItemId">@item.Name</a></h3>
+                            <p class="cart-unit-price">@item.Price.ToString("N0", vi) ₫ / ly</p>
+                            <form asp-controller="Cart" asp-action="Update" method="post" class="cart-quantity">
+                                <input type="hidden" name="id" value="@item.MenuItemId" />
+                                <label for="quantity-@item.MenuItemId">Số lượng<span class="visually-hidden"> @item.Name</span></label>
+                                <input id="quantity-@item.MenuItemId" class="form-control" type="number" name="quantity" value="@item.Quantity" min="1" max="99" step="1" required />
+                                <button class="btn btn-outline-primary btn-sm" type="submit">Cập nhật</button>
+                            </form>
+                        </div>
+                        <div class="cart-item-total">
+                            <strong>@item.TotalPrice.ToString("N0", vi) ₫</strong>
+                            <form asp-controller="Cart" asp-action="Remove" method="post">
+                                <input type="hidden" name="id" value="@item.MenuItemId" />
+                                <button class="cart-remove" type="submit" aria-label="Xóa @item.Name khỏi giỏ hàng">Xóa món</button>
+                            </form>
+                        </div>
+                    </article>
+                }
+                <div class="cart-list-footer">
+                    <a asp-controller="Menu" asp-action="Index">← Chọn thêm đồ uống</a>
+                    <form asp-controller="Cart" asp-action="Clear" method="post"><button class="cart-remove" type="submit">Xóa toàn bộ giỏ hàng</button></form>
+                </div>
+            </div>
+            <aside class="cart-summary" aria-labelledby="cart-summary-title">
+                <h2 id="cart-summary-title">Tóm tắt giỏ hàng</h2>
+                <dl>
+                    <div><dt>Số lượng đồ uống</dt><dd>@quantity ly</dd></div>
+                    <div class="cart-grand-total"><dt>Tổng tiền</dt><dd>@total.ToString("N0", vi) ₫</dd></div>
+                </dl>
+                <p>Tổng tiền đồ uống theo giá cơ bản.</p>
+                <a class="btn btn-primary w-100" asp-controller="Checkout" asp-action="Index">Tiến hành đặt hàng →</a>
+                <p>Kiểm tra thông tin giao hàng ở bước tiếp theo.</p>
+            </aside>
+        </div>
+    }
+</section>
