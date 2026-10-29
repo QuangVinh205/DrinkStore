@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace DrinkStore.ViewModels
 {
@@ -15,8 +15,15 @@ namespace DrinkStore.ViewModels
         [Required(ErrorMessage = "Vui lòng nhập địa chỉ giao hàng")]
         public string Address { get; set; } = "";
 
-        public List<CartItemViewModel> CartItems { get; set; } = new();
+        [StringLength(100, ErrorMessage = "Mã giảm giá quá dài")]
+        public string? CouponCode { get; set; }
 
-        public decimal Total => CartItems.Sum(x => x.TotalPrice);
+        // Chỉ dùng để hiển thị; không nhận các giá trị tiền từ trình duyệt.
+        public List<CartItemViewModel> CartItems { get; set; } = new();
+        public decimal Subtotal { get; set; }
+        public decimal Discount { get; set; }
+        [Microsoft.AspNetCore.Mvc.ModelBinding.BindNever]
+        public string? AppliedCouponCode { get; set; }
+        public decimal Total => Math.Max(0, Subtotal - Discount);
     }
 }

@@ -31,6 +31,24 @@
                 <textarea asp-for="Address" class="form-control" autocomplete="street-address" rows="3" required placeholder="Số nhà, tên đường, phường/xã, tỉnh/thành phố"></textarea>
                 <span asp-validation-for="Address" class="text-danger"></span>
             </div>
+            <div class="mb-4">
+                <label asp-for="CouponCode" class="form-label">Mã giảm giá</label>
+                <div class="checkout-coupon-controls">
+                    <input asp-for="CouponCode" class="form-control" maxlength="100" placeholder="Ví dụ: SALE10" aria-describedby="coupon-feedback" />
+                    <button class="btn btn-outline-primary" type="submit" name="intent" value="applyCoupon" formnovalidate>Áp dụng</button>
+                </div>
+                <div id="coupon-feedback" aria-live="polite">
+                    <span asp-validation-for="CouponCode" class="text-danger"></span>
+                    @if (Model.AppliedCouponCode != null)
+                    {
+                        <small class="checkout-coupon-success">Đã áp dụng mã <strong>@Model.AppliedCouponCode</strong>. Bạn được giảm @Model.Discount.ToString("N0", vi) ₫.</small>
+                    }
+                    else
+                    {
+                        <small class="checkout-muted">Nhập mã và bấm Áp dụng để xem số tiền được giảm trước khi đặt hàng.</small>
+                    }
+                </div>
+            </div>
             <a asp-controller="Cart" asp-action="Index">← Quay lại chỉnh sửa giỏ hàng</a>
         </div>
         <aside class="checkout-panel checkout-summary" aria-labelledby="summary-title">
@@ -45,7 +63,14 @@
                     </li>
                 }
             </ul>
-            <dl class="checkout-totals"><div><dt>Tổng tiền đồ uống</dt><dd>@Model.Total.ToString("N0", vi) ₫</dd></div></dl>
+            <dl class="checkout-totals">
+                <div><dt>Tạm tính</dt><dd>@Model.Subtotal.ToString("N0", vi) ₫</dd></div>
+                @if (Model.Discount > 0)
+                {
+                    <div><dt>Giảm giá <small>(@Model.AppliedCouponCode)</small></dt><dd>-@Model.Discount.ToString("N0", vi) ₫</dd></div>
+                }
+                <div><dt><strong>Tổng thanh toán</strong></dt><dd><strong>@Model.Total.ToString("N0", vi) ₫</strong></dd></div>
+            </dl>
             <p class="checkout-muted">Giá đồ uống được kiểm tra lại khi xác nhận đơn. Thao tác này tạo đơn hàng, chưa thực hiện thanh toán trực tuyến.</p>
             <button class="btn btn-primary w-100" type="submit">Xác nhận đặt hàng →</button>
         </aside>

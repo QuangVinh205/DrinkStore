@@ -10,6 +10,10 @@
 .checkout-panel .form-control { border-radius: 9px; padding: 12px 14px; }
 .checkout-panel .text-danger { font-size: .82rem; }
 .checkout-panel .input-validation-error { border-color: #b52b38; }
+.checkout-coupon-controls { display: flex; gap: 12px; align-items: stretch; }
+.checkout-coupon-controls .form-control { flex: 1; min-width: 0; }
+.checkout-coupon-controls .btn { flex-shrink: 0; white-space: nowrap; }
+.checkout-coupon-success { display: block; color: #206343; margin-top: 8px; }
 .checkout-panel > a:not(.btn) { font-size: .85rem; color: var(--accent); }
 .checkout-summary { background: #f1f5ff; }
 .checkout-items { padding: 0; margin: 0; list-style: none; }
@@ -38,6 +42,7 @@
 .checkout-status[data-status="Cancelled"] { background: #fcebed; color: #a12c35; }
 @media (max-width: 900px) { .checkout-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; } }
 @media (max-width: 600px) {
+    .checkout-coupon-controls { flex-direction: column; }
     .checkout-panel { padding: 22px; }
     .checkout-items li { gap: 12px; font-size: .82rem; }
     .checkout-actions { flex-direction: column; }
