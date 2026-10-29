@@ -1,0 +1,5 @@
+@model DrinkStore.Models.Ingredient
+@{ ViewData["Title"] = "Nhập kho"; }
+<div class="container py-4"><h2>Nhập kho: @Model.Name</h2><p>Tồn hiện tại: <strong>@Model.OnHand.ToString("N3") @Model.Unit</strong></p>
+@if (TempData["Error"] != null) { <div class="alert alert-danger">@TempData["Error"]</div> }
+<form asp-action="StockIn" asp-route-id="@Model.IngredientId" method="post" class="card card-body shadow-sm"><label for="amount" class="form-label">Số lượng nhập thêm (@Model.Unit)</label><input id="amount" name="amount" type="number" min="0.001" max="1000000000" step="0.001" required class="form-control mb-3" /><div><button class="btn btn-success">Xác nhận nhập kho</button> <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a></div></form></div>

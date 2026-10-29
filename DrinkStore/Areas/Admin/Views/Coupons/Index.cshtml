@@ -1,0 +1,9 @@
+@model IEnumerable<DrinkStore.Models.Coupon>
+@{ ViewData["Title"] = "Quản lý mã giảm giá"; var now = DateTime.UtcNow; }
+<div class="admin-management py-4"><div class="admin-heading"><h2>Quản lý mã giảm giá</h2><a class="btn btn-primary" asp-action="Create">+ Thêm mã</a></div>
+@if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+<form method="get" class="admin-filters"><label for="coupon-search" class="visually-hidden">Tìm mã giảm giá</label><input id="coupon-search" class="form-control" name="search" value="@ViewBag.Search" placeholder="Tìm mã giảm giá" /><button class="btn btn-outline-primary">Tìm</button><a asp-action="Index" class="btn btn-outline-secondary">Xóa lọc</a></form>
+<div class="table-responsive"><table class="table table-striped align-middle"><thead><tr><th>Mã</th><th>Giảm (%)</th><th>Đơn tối thiểu</th><th>Bắt đầu (UTC)</th><th>Kết thúc (UTC)</th><th>Trạng thái</th><th></th></tr></thead><tbody>
+@foreach (var x in Model) { <tr><td><strong>@x.Code</strong></td><td>@x.Percentage.ToString("N2")%</td><td>@x.MinOrderValue.ToString("N0") đ</td><td>@x.ValidFrom.ToString("dd/MM/yyyy HH:mm")</td><td>@x.ValidTo.ToString("dd/MM/yyyy HH:mm")</td><td>@if (now < x.ValidFrom) { <span class="badge bg-info text-dark">Sắp có hiệu lực</span> } else if (now > x.ValidTo) { <span class="badge bg-secondary">Hết hạn</span> } else { <span class="badge bg-success">Còn hạn</span> }</td><td><a class="btn btn-sm btn-outline-primary" asp-action="Edit" asp-route-id="@x.Code">Sửa</a></td></tr> }
+@if (!Model.Any()) { <tr><td colspan="7" class="text-center">Chưa có mã phù hợp.</td></tr> }
+</tbody></table></div></div>

@@ -33,7 +33,19 @@
                         <a class="nav-link @(!isAdmin && controller == "Cart" ? "active" : "")" aria-current="@(!isAdmin && controller == "Cart" ? "page" : null)" asp-area="" asp-controller="Cart" asp-action="Index">Giỏ hàng</a>
                         <a class="nav-link @(!isAdmin && controller == "Checkout" && action == "MyOrders" ? "active" : "")" aria-current="@(!isAdmin && controller == "Checkout" && action == "MyOrders" ? "page" : null)" asp-area="" asp-controller="Checkout" asp-action="MyOrders">Đơn hàng</a>
                     }
-                    @if (User.IsInRole("ShiftManager")) { <a class="nav-link @(isAdmin ? "active" : "")" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Quản trị</a> }
+                    @if (User.IsInRole("ShiftManager"))
+                    {
+                        <div class="nav-item dropdown admin-navigation">
+                            <button class="nav-link dropdown-toggle @(isAdmin ? "active" : "")" id="admin-navigation-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Quản trị</button>
+                            <ul class="dropdown-menu" aria-labelledby="admin-navigation-toggle">
+                                <li><a class="dropdown-item @(isAdmin && controller == "Dashboard" ? "active" : "")" aria-current="@(isAdmin && controller == "Dashboard" ? "page" : null)" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Tổng quan</a></li>
+                                <li><a class="dropdown-item @(isAdmin && controller == "Orders" ? "active" : "")" aria-current="@(isAdmin && controller == "Orders" ? "page" : null)" asp-area="Admin" asp-controller="Orders" asp-action="Index">Quản lý đơn hàng</a></li>
+                                <li><a class="dropdown-item @(isAdmin && controller == "Menu" ? "active" : "")" aria-current="@(isAdmin && controller == "Menu" ? "page" : null)" asp-area="Admin" asp-controller="Menu" asp-action="Index">Quản lý đồ uống</a></li>
+                                <li><a class="dropdown-item @(isAdmin && controller == "Ingredients" ? "active" : "")" aria-current="@(isAdmin && controller == "Ingredients" ? "page" : null)" asp-area="Admin" asp-controller="Ingredients" asp-action="Index">Quản lý nguyên liệu</a></li>
+                                <li><a class="dropdown-item @(isAdmin && controller == "Coupons" ? "active" : "")" aria-current="@(isAdmin && controller == "Coupons" ? "page" : null)" asp-area="Admin" asp-controller="Coupons" asp-action="Index">Quản lý mã giảm giá</a></li>
+                            </ul>
+                        </div>
+                    }
                 </div>
                 <div class="account-nav">
                     @if (User.Identity?.IsAuthenticated == true) {

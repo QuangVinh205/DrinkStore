@@ -1,0 +1,18 @@
+@model IEnumerable<DrinkStore.Models.Ingredient>
+@{ ViewData["Title"] = "Quản lý nguyên liệu"; }
+<div class="admin-management py-4">
+    <div class="admin-heading"><h2>Quản lý nguyên liệu</h2><a class="btn btn-primary" asp-area="Admin" asp-controller="Ingredients" asp-action="Create">+ Thêm nguyên liệu</a></div>
+    @if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+    <form method="get" class="admin-filters">
+        <label for="ingredient-search" class="visually-hidden">Tìm tên nguyên liệu</label><input id="ingredient-search" name="search" value="@ViewBag.Search" class="form-control" placeholder="Tìm tên nguyên liệu" />
+        <label class="form-check mb-0"><input type="checkbox" class="form-check-input" name="lowStock" value="true" checked="@(ViewBag.LowStock == true)" /> Chỉ xem sắp hết</label>
+        <div class="d-flex flex-wrap gap-2"><button class="btn btn-outline-primary">Lọc</button> <a class="btn btn-outline-secondary" asp-action="Index">Xóa lọc</a></div>
+    </form>
+    <div class="table-responsive"><table class="table table-striped align-middle"><thead><tr><th>Tên</th><th>Đơn vị</th><th>Hiện có</th><th>Đã giữ</th><th>Khả dụng</th><th>Ngưỡng cảnh báo</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody>
+    @foreach (var x in Model) {
+        var available = x.OnHand - x.Reserved;
+        <tr><td>@x.Name</td><td>@x.Unit</td><td>@x.OnHand.ToString("N3")</td><td>@x.Reserved.ToString("N3")</td><td>@available.ToString("N3")</td><td>@x.ReorderThreshold.ToString("N3")</td><td>@if (available <= x.ReorderThreshold) { <span class="badge bg-warning text-dark">Sắp hết</span> } else { <span class="badge bg-success">Đủ</span> }</td><td><a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@x.IngredientId">Sửa</a> <a class="btn btn-sm btn-primary" asp-action="StockIn" asp-route-id="@x.IngredientId">Nhập kho</a></td></tr>
+    }
+    @if (!Model.Any()) { <tr><td colspan="8" class="text-center">Chưa có nguyên liệu phù hợp.</td></tr> }
+    </tbody></table></div>
+</div>

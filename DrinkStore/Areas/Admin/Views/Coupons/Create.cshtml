@@ -1,0 +1,9 @@
+@model DrinkStore.Models.Coupon
+@{ ViewData["Title"] = "Thêm mã giảm giá"; }
+<div class="container py-4"><h2>Thêm mã giảm giá</h2><form asp-action="Create" method="post" class="card card-body shadow-sm"><div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="mb-3"><label asp-for="Code" class="form-label">Mã giảm giá</label><input asp-for="Code" class="form-control" maxlength="30" required /><span asp-validation-for="Code" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="Percentage" class="form-label">Phần trăm giảm</label><input asp-for="Percentage" type="number" step="0.01" min="0.01" max="100" class="form-control" /><span asp-validation-for="Percentage" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="MinOrderValue" class="form-label">Đơn tối thiểu (VNĐ)</label><input asp-for="MinOrderValue" type="number" step="0.01" min="0" class="form-control" /><span asp-validation-for="MinOrderValue" class="text-danger"></span></div>
+<p class="text-muted">Nhập ngày giờ theo UTC để khớp với hệ thống.</p><div class="mb-3"><label asp-for="ValidFrom" class="form-label">Bắt đầu (UTC)</label><input asp-for="ValidFrom" type="datetime-local" class="form-control" /><span asp-validation-for="ValidFrom" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="ValidTo" class="form-label">Kết thúc (UTC)</label><input asp-for="ValidTo" type="datetime-local" class="form-control" /><span asp-validation-for="ValidTo" class="text-danger"></span></div>
+<div><button class="btn btn-primary">Tạo mã</button> <a asp-action="Index" class="btn btn-outline-secondary">Hủy</a></div></form></div>
