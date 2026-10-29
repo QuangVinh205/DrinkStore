@@ -17,6 +17,16 @@
             img.src = img.dataset.fallbackSrc;
         });
     });
+    document.querySelectorAll('.drink-detail').forEach(detail => {
+        const price = detail.querySelector('[data-drink-price]');
+        if (!price) return;
+        const updatePrice = () => {
+            const selected = detail.querySelector('[data-size-price]:checked');
+            if (selected) price.textContent = Number(selected.dataset.sizePrice).toLocaleString('vi-VN', { maximumFractionDigits: 0 });
+        };
+        detail.querySelectorAll('[data-size-price]').forEach(input => input.addEventListener('change', updatePrice));
+        updatePrice();
+    });
     const menu = document.querySelector('[data-menu]');
     if (!menu) return;
     const search = document.getElementById('menu-search');

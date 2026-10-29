@@ -1,0 +1,21 @@
+@model DrinkStore.Models.Recipe
+@{ ViewData["Title"] = "Chi tiết công thức"; }
+<div class="container py-4">
+    <h2>@Model.MenuItem.Name — Size @Model.Size</h2>
+    @if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+    <p><strong>Hướng dẫn:</strong> @Model.Instructions</p>
+    <table class="table table-bordered"><thead><tr><th>Nguyên liệu</th><th>Định lượng / ly</th></tr></thead><tbody>
+    @foreach (var item in Model.RecipeItems.OrderBy(x => x.Ingredient.Name)) {
+        <tr><td>@item.Ingredient.Name</td><td>@item.RequiredAmount.ToString("0.###") @item.Unit</td></tr>
+    }
+    </tbody></table>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+        <a asp-action="Edit" asp-route-id="@Model.RecipeId" class="btn btn-primary">Chỉnh sửa</a>
+        <form asp-action="Delete" asp-route-id="@Model.RecipeId" method="post"
+              onsubmit="return confirm('Xóa công thức này? Đơn hàng đang chờ chuẩn bị có thể không trừ được kho.');">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-danger">Xóa</button>
+        </form>
+    </div>
+</div>

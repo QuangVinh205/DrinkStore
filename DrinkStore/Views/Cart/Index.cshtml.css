@@ -18,6 +18,8 @@
 .cart-quantity label { font-size: .78rem; }
 .cart-quantity input { width: 72px; border-radius: 8px; padding: 7px 9px; }
 .cart-quantity button { padding: 8px 12px; }
+.cart-quantity select { width: auto; min-width: 72px; border-radius: 8px; }
+.cart-size-badge { display: inline-block; margin: 0 0 10px; padding: 4px 10px; border-radius: 20px; background: #edf2ff; color: var(--accent); font-size: .8rem; font-weight: 600; }
 .cart-item-total { text-align: right; }
 .cart-item-total strong { color: var(--accent); white-space: nowrap; }
 .cart-remove { border: 0; padding: 4px 0; background: transparent; color: #a12c35; font-size: .78rem; text-decoration: underline; text-underline-offset: 3px; }

@@ -30,9 +30,12 @@ namespace DrinkStore.Controllers
         private async Task<(List<OrderItem>? Items, string? Error)> BuildOrderItemsAsync(
             List<CartItemViewModel> cart)
         {
+            if (cart.Any(x => !DrinkSizes.IsValid(x.Size)))
+                return (null, "Vui lòng quay lại giỏ hàng và chọn size M hoặc L cho từng đồ uống.");
+
             if (cart.Count == 0 ||
                 cart.Any(x => x.Quantity < 1 || x.Quantity > 99) ||
-                cart.Select(x => x.MenuItemId).Distinct().Count() != cart.Count)
+                cart.Select(x => (x.MenuItemId, x.Size)).Distinct().Count() != cart.Count)
                 return (null, "Giỏ hàng không hợp lệ.");
 
             var ids = cart.Select(x => x.MenuItemId).ToList();
@@ -40,15 +43,21 @@ namespace DrinkStore.Controllers
                 .Where(x => ids.Contains(x.ItemId) && x.Active)
                 .ToDictionaryAsync(x => x.ItemId);
 
-            if (products.Count != ids.Count)
+            if (products.Count != ids.Distinct().Count())
                 return (null, "Một số đồ uống không còn được bán.");
+
+            foreach (var item in cart)
+            {
+                item.BasePrice = products[item.MenuItemId].BasePrice;
+                item.Price = DrinkSizes.GetPrice(item.BasePrice.Value, item.Size);
+            }
 
             return (cart.Select(x => new OrderItem
             {
                 MenuItemId = x.MenuItemId,
                 Quantity = x.Quantity,
-                Size = "M", // Giữ nguyên size đang dùng trong Checkout hiện tại.
-                UnitPriceSnapshot = products[x.MenuItemId].BasePrice
+                Size = x.Size,
+                UnitPriceSnapshot = DrinkSizes.GetPrice(products[x.MenuItemId].BasePrice, x.Size)
             }).ToList(), null);
         }
 

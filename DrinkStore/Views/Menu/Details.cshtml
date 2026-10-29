@@ -12,21 +12,33 @@
         <p class="fresh-pill">DRINKSTORE / CHI TIẾT ĐỒ UỐNG</p>
         <h1 id="drink-name">@Model.Name</h1>
         <span class="availability">Đang phục vụ</span>
-        <p class="drink-detail-price">@Model.BasePrice.ToString("N0", vi) <span>₫</span></p>
-        <p class="drink-price-note">Giá cơ bản của đồ uống</p>
+        <p class="drink-detail-price" aria-live="polite"><span data-drink-price>@DrinkStore.Models.DrinkSizes.GetPrice(Model.BasePrice, DrinkStore.Models.DrinkSizes.Default).ToString("N0", vi)</span> <span>₫</span></p>
+        <p class="drink-price-note">Giá mỗi ly · Size M giá gốc, size L thêm 5.000 ₫</p>
         <div class="drink-description"><h2>Về món đồ uống này</h2><p>@(string.IsNullOrWhiteSpace(Model.Description) ? "Một lựa chọn cho phút nghỉ ngơi của bạn. Khám phá hương vị yêu thích cùng DrinkStore." : Model.Description)</p></div>
         <div class="drink-order-note">
             @if (User.IsInRole("Customer"))
             {
                 <form asp-controller="Cart" asp-action="Add" method="post">
                     <input type="hidden" name="id" value="@Model.ItemId" />
+                    <fieldset class="drink-size-picker">
+                        <legend>Chọn kích cỡ</legend>
+                        <div class="drink-size-options">
+                            @foreach (var size in DrinkStore.Models.DrinkSizes.All)
+                            {
+                                <label class="drink-size-option">
+                                    <input type="radio" name="size" value="@size" data-size-price="@DrinkStore.Models.DrinkSizes.GetPrice(Model.BasePrice, size).ToString(CultureInfo.InvariantCulture)" checked="@(size == DrinkStore.Models.DrinkSizes.Default)" required />
+                                    <span>Size @size <small>@(size == "M" ? "Vừa" : "Lớn") · @DrinkStore.Models.DrinkSizes.GetPrice(Model.BasePrice, size).ToString("N0", vi) ₫</small></span>
+                                </label>
+                            }
+                        </div>
+                    </fieldset>
                     <label for="drink-quantity" class="form-label">Số lượng</label>
                     <div class="d-flex flex-wrap gap-2">
                         <input id="drink-quantity" class="form-control" type="number" name="quantity" value="1" min="1" max="99" step="1" required style="width: 85px;" />
                         <button class="btn btn-primary" type="submit">Thêm vào giỏ hàng</button>
                     </div>
                 </form>
-                <p>Bạn có thể thay đổi số lượng và tiến hành đặt hàng trong giỏ hàng.</p>
+                <p>Bạn có thể đổi size và số lượng trong giỏ hàng. Size L thêm 5.000 ₫ so với size M.</p>
             }
             else if (User.Identity?.IsAuthenticated != true)
             {

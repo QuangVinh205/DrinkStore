@@ -1,0 +1,105 @@
+@model DrinkStore.Areas.Admin.ViewModels.RecipeFormViewModel
+@{
+    bool editing = Model.RecipeId > 0;
+    ViewData["Title"] = editing ? "Sửa công thức" : "Tạo công thức";
+}
+<div class="container py-4">
+    <h2>@ViewData["Title"]</h2>
+    <form method="post" asp-area="Admin" asp-controller="Recipes" asp-action="@(editing ? "Edit" : "Create")" asp-route-id="@(editing ? Model.RecipeId : (int?)null)">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="RecipeId" />
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label asp-for="MenuItemId" class="form-label">Đồ uống</label>
+                <select asp-for="MenuItemId" asp-items="Model.MenuOptions" class="form-select">
+                    <option value="0">-- Chọn đồ uống --</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Size" class="form-label">Kích cỡ</label>
+                <select asp-for="Size" class="form-select">
+                    @foreach (var size in DrinkStore.Models.DrinkSizes.All)
+                    {
+                        <option value="@size">@size</option>
+                    }
+                </select>
+            </div>
+            <div class="col-12">
+                <label asp-for="Instructions" class="form-label">Hướng dẫn pha chế</label>
+                <textarea asp-for="Instructions" class="form-control" rows="3"></textarea>
+            </div>
+        </div>
+        <h5>Nguyên liệu / một ly</h5>
+        <p class="text-muted">Đơn vị tính được lấy tự động từ danh mục nguyên liệu. Ví dụ: sữa 150 ml, đường 20 g.</p>
+        <div id="ingredients">
+            @for (var i = 0; i < Model.Ingredients.Count; i++)
+            {
+                <div class="row g-2 mb-2 ingredient-row">
+                    <div class="col-md-7">
+                        <select class="form-select" name="Ingredients[@i].IngredientId" required>
+                            <option value="">-- Chọn nguyên liệu --</option>
+                            @foreach (var option in Model.IngredientOptions)
+                            {
+                                if (option.Value == Model.Ingredients[i].IngredientId.ToString())
+                                {
+                                    <option value="@option.Value" selected>@option.Text</option>
+                                }
+                                else
+                                {
+                                    <option value="@option.Value">@option.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4"><input type="number" step="0.001" min="0.001" max="999999999" required
+                        class="form-control" name="Ingredients[@i].RequiredAmount"
+                        value="@Model.Ingredients[i].RequiredAmount.ToString(System.Globalization.CultureInfo.InvariantCulture)" /></div>
+                    <div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-row">×</button></div>
+                </div>
+            }
+        </div>
+        <button type="button" id="add-ingredient" class="btn btn-outline-primary mb-3">+ Thêm nguyên liệu</button>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success">Lưu công thức</button>
+            <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+        </div>
+    </form>
+</div>
+<template id="ingredient-template">
+    <div class="row g-2 mb-2 ingredient-row">
+        <div class="col-md-7"><select class="form-select ingredient-select" required>
+            <option value="">-- Chọn nguyên liệu --</option>
+            @foreach (var option in Model.IngredientOptions)
+            {
+                <option value="@option.Value">@option.Text</option>
+            }
+        </select></div>
+        <div class="col-md-4"><input class="form-control ingredient-amount" type="number" step="0.001" min="0.001" max="999999999" required /></div>
+        <div class="col-md-1"><button type="button" class="btn btn-outline-danger remove-row">×</button></div>
+    </div>
+</template>
+<script>
+(function () {
+    const box = document.getElementById('ingredients');
+    const template = document.getElementById('ingredient-template');
+    function renumber() {
+        [...box.querySelectorAll('.ingredient-row')].forEach((row, i) => {
+            row.querySelector('select').name = `Ingredients[${i}].IngredientId`;
+            row.querySelector('input').name = `Ingredients[${i}].RequiredAmount`;
+        });
+    }
+    document.getElementById('add-ingredient').addEventListener('click', () => {
+        if (box.querySelectorAll('.ingredient-row').length >= 50) return;
+        box.appendChild(template.content.cloneNode(true));
+        renumber();
+    });
+    box.addEventListener('click', e => {
+        if (e.target.classList.contains('remove-row')) {
+            e.target.closest('.ingredient-row').remove();
+            renumber();
+        }
+    });
+    renumber();
+})();
+</script>

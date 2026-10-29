@@ -1,5 +1,6 @@
 ﻿using DrinkStore.Data;
 using DrinkStore.Extensions;
+using DrinkStore.Models;
 using DrinkStore.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,9 +23,17 @@ namespace DrinkStore.Controllers
         // Lấy giỏ hàng từ Session
         private List<CartItemViewModel> GetCart()
         {
-            return HttpContext.Session
+            var cart = HttpContext.Session
                 .GetObject<List<CartItemViewModel>>(CartKey)
                 ?? new List<CartItemViewModel>();
+            foreach (var item in cart)
+            {
+                // Older sessions stored the base price for both sizes.
+                item.BasePrice ??= item.Price;
+                if (DrinkSizes.IsValid(item.Size))
+                    item.Price = DrinkSizes.GetPrice(item.BasePrice.Value, item.Size);
+            }
+            return cart;
         }
 
         // Lưu giỏ hàng
@@ -47,8 +56,11 @@ namespace DrinkStore.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(
             int id,
-            int quantity = 1)
+            int quantity = 1, string size = DrinkSizes.Default)
         {
+            if (!ModelState.IsValid || !DrinkSizes.IsValid(size))
+                return BadRequest("Vui lòng chọn size M hoặc L.");
+
             if (quantity < 1 || quantity > 99)
                 return BadRequest("Số lượng không hợp lệ.");
 
@@ -63,7 +75,7 @@ namespace DrinkStore.Controllers
             var cart = GetCart();
 
             var existingItem = cart
-                .FirstOrDefault(x => x.MenuItemId == id);
+                .FirstOrDefault(x => x.MenuItemId == id && x.Size == size);
 
             if (existingItem != null)
             {
@@ -72,6 +84,8 @@ namespace DrinkStore.Controllers
                         "Số lượng tối đa là 99.");
 
                 existingItem.Quantity += quantity;
+                existingItem.BasePrice = product.BasePrice;
+                existingItem.Price = DrinkSizes.GetPrice(product.BasePrice, size);
             }
             else
             {
@@ -80,8 +94,10 @@ namespace DrinkStore.Controllers
                     MenuItemId = product.ItemId,
                     Name = product.Name,
                     ImageUrl = product.ImageUrl ?? "",
-                    Price = product.BasePrice,
-                    Quantity = quantity
+                    BasePrice = product.BasePrice,
+                    Price = DrinkSizes.GetPrice(product.BasePrice, size),
+                    Quantity = quantity,
+                    Size = size
                 });
             }
 
@@ -93,27 +109,33 @@ namespace DrinkStore.Controllers
         // POST: /Cart/Update
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Update(int id, int quantity)
+        public IActionResult Update(int id, int quantity, string size, string newSize)
         {
+            if (!ModelState.IsValid || !DrinkSizes.IsValid(newSize) || quantity < 1 || quantity > 99)
+                return BadRequest("Size phải là M hoặc L, số lượng từ 1 đến 99.");
+
             var cart = GetCart();
 
             var item = cart.FirstOrDefault(
-                x => x.MenuItemId == id);
+                x => x.MenuItemId == id && x.Size == size);
 
             if (item == null)
                 return NotFound();
 
-            if (quantity <= 0)
+            var matchingItem = cart.FirstOrDefault(x =>
+                x != item && x.MenuItemId == id && x.Size == newSize);
+            if (matchingItem != null)
             {
+                if (matchingItem.Quantity + quantity > 99)
+                    return BadRequest("Số lượng tối đa cho mỗi món và size là 99.");
+                matchingItem.Quantity += quantity;
                 cart.Remove(item);
             }
             else
             {
-                if (quantity > 99)
-                    return BadRequest(
-                        "Số lượng tối đa là 99.");
-
                 item.Quantity = quantity;
+                item.Size = newSize;
+                item.Price = DrinkSizes.GetPrice(item.BasePrice!.Value, newSize);
             }
 
             SaveCart(cart);
@@ -124,11 +146,11 @@ namespace DrinkStore.Controllers
         // POST: /Cart/Remove
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Remove(int id)
+        public IActionResult Remove(int id, string size)
         {
             var cart = GetCart();
 
-            cart.RemoveAll(x => x.MenuItemId == id);
+            cart.RemoveAll(x => x.MenuItemId == id && x.Size == size);
 
             SaveCart(cart);
 

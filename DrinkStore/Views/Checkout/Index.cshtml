@@ -58,7 +58,11 @@
                 @foreach (var item in Model.CartItems)
                 {
                     <li>
-                        <div><strong>@item.Name</strong><small>@item.Quantity × @item.Price.ToString("N0", vi) ₫</small></div>
+                        <div>
+                            <strong>@item.Name</strong>
+                            <small>@item.Quantity × @item.Price.ToString("N0", vi) ₫</small>
+                            <small>Size @item.Size</small>
+                        </div>
                         <span>@item.TotalPrice.ToString("N0", vi) ₫</span>
                     </li>
                 }

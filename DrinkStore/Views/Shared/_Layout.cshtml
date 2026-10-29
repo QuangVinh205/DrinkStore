@@ -43,6 +43,12 @@
                                 <li><a class="dropdown-item @(isAdmin && controller == "Menu" ? "active" : "")" aria-current="@(isAdmin && controller == "Menu" ? "page" : null)" asp-area="Admin" asp-controller="Menu" asp-action="Index">Quản lý đồ uống</a></li>
                                 <li><a class="dropdown-item @(isAdmin && controller == "Ingredients" ? "active" : "")" aria-current="@(isAdmin && controller == "Ingredients" ? "page" : null)" asp-area="Admin" asp-controller="Ingredients" asp-action="Index">Quản lý nguyên liệu</a></li>
                                 <li><a class="dropdown-item @(isAdmin && controller == "Coupons" ? "active" : "")" aria-current="@(isAdmin && controller == "Coupons" ? "page" : null)" asp-area="Admin" asp-controller="Coupons" asp-action="Index">Quản lý mã giảm giá</a></li>
+                                <a asp-area="Admin"
+                                   asp-controller="Recipes"
+                                   asp-action="Index"
+                                   class="nav-link">
+                                    🧋 Quản lý công thức pha chế
+                                </a>
                             </ul>
                         </div>
                     }

@@ -32,17 +32,31 @@
                 @foreach (var item in Model)
                 {
                     var imageUrl = string.IsNullOrWhiteSpace(item.ImageUrl) ? Url.Content("~/images/drinks.svg") : Url.Content(item.ImageUrl);
-                    <article class="cart-item" aria-labelledby="item-name-@item.MenuItemId">
+                    var rowId = $"{item.MenuItemId}-{item.Size}";
+                    <article class="cart-item" aria-labelledby="item-name-@rowId">
                         <a class="cart-image" asp-controller="Menu" asp-action="Details" asp-route-id="@item.MenuItemId" aria-label="Xem @item.Name">
                             <img src="@imageUrl" alt="@item.Name" data-fallback-src="@Url.Content("~/images/drinks.svg")" width="112" height="112" />
                         </a>
                         <div class="cart-item-copy">
-                            <h3 id="item-name-@item.MenuItemId"><a asp-controller="Menu" asp-action="Details" asp-route-id="@item.MenuItemId">@item.Name</a></h3>
+                            <h3 id="item-name-@rowId"><a asp-controller="Menu" asp-action="Details" asp-route-id="@item.MenuItemId">@item.Name</a></h3>
+                            <p class="cart-size-badge">Size @item.Size</p>
                             <p class="cart-unit-price">@item.Price.ToString("N0", vi) ₫ / ly</p>
                             <form asp-controller="Cart" asp-action="Update" method="post" class="cart-quantity">
                                 <input type="hidden" name="id" value="@item.MenuItemId" />
-                                <label for="quantity-@item.MenuItemId">Số lượng<span class="visually-hidden"> @item.Name</span></label>
-                                <input id="quantity-@item.MenuItemId" class="form-control" type="number" name="quantity" value="@item.Quantity" min="1" max="99" step="1" required />
+                                <input type="hidden" name="size" value="@item.Size" />
+                                <label for="size-@rowId">Size<span class="visually-hidden"> @item.Name, size @item.Size</span></label>
+                                <select id="size-@rowId" class="form-select" name="newSize" required>
+                                    @if (!DrinkStore.Models.DrinkSizes.IsValid(item.Size))
+                                    {
+                                        <option value="" selected disabled>Chọn lại size</option>
+                                    }
+                                    @foreach (var size in DrinkStore.Models.DrinkSizes.All)
+                                    {
+                                        <option value="@size" selected="@(item.Size == size)">@size</option>
+                                    }
+                                </select>
+                                <label for="quantity-@rowId">Số lượng<span class="visually-hidden"> @item.Name, size @item.Size</span></label>
+                                <input id="quantity-@rowId" class="form-control" type="number" name="quantity" value="@item.Quantity" min="1" max="99" step="1" required />
                                 <button class="btn btn-outline-primary btn-sm" type="submit">Cập nhật</button>
                             </form>
                         </div>
@@ -50,7 +64,8 @@
                             <strong>@item.TotalPrice.ToString("N0", vi) ₫</strong>
                             <form asp-controller="Cart" asp-action="Remove" method="post">
                                 <input type="hidden" name="id" value="@item.MenuItemId" />
-                                <button class="cart-remove" type="submit" aria-label="Xóa @item.Name khỏi giỏ hàng">Xóa món</button>
+                                <input type="hidden" name="size" value="@item.Size" />
+                                <button class="cart-remove" type="submit" aria-label="Xóa @item.Name size @item.Size khỏi giỏ hàng">Xóa món</button>
                             </form>
                         </div>
                     </article>
@@ -66,7 +81,7 @@
                     <div><dt>Số lượng đồ uống</dt><dd>@quantity ly</dd></div>
                     <div class="cart-grand-total"><dt>Tổng tiền</dt><dd>@total.ToString("N0", vi) ₫</dd></div>
                 </dl>
-                <p>Tổng tiền đồ uống theo giá cơ bản.</p>
+                <p>Size L thêm 5.000 ₫ so với size M. Bấm Cập nhật sau khi đổi size hoặc số lượng.</p>
                 <a class="btn btn-primary w-100" asp-controller="Checkout" asp-action="Index">Tiến hành đặt hàng →</a>
                 <p>Kiểm tra thông tin giao hàng ở bước tiếp theo.</p>
             </aside>
