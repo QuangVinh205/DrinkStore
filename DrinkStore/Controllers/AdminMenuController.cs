@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DrinkStore.Models;
 using DrinkStore.Data;
+using Microsoft.AspNetCore.Authorization;
 
+[Authorize(Roles = "ShiftManager")]
 public class AdminMenuController : Controller
 {
     private readonly DrinkStoreDb _context;

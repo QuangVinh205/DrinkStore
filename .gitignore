@@ -3,6 +3,20 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Local agent configuration, scratch files, secrets and database exports
+.codex/
+.tmp/
+.env
+.env.*
+!.env.example
+**/appsettings.Local.json
+**/secrets.json
+*.bak
+*.bacpac
+*.p12
+*.pem
+*.key
+
 # User-specific files
 *.rsuser
 *.suo
